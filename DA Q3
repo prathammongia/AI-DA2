@@ -1,0 +1,51 @@
+import numpy as np 
+P_A = {True: 0.8, False: 0.2} 
+P_C = {True: 0.5, False: 0.5} 
+P_G_given_A_C = { 
+    ("Good", True, True): 0.9, 
+    ("Good", True, False): 0.7, 
+    ("Good", False, True): 0.6, 
+    ("Good", False, False): 0.3, 
+    ("OK", True, True): 0.1, 
+    ("OK", True, False): 0.3, 
+    ("OK", False, True): 0.4, 
+    ("OK", False, False): 0.7, 
+} 
+P_J_given_G = { 
+    ("Good", True): 0.8, 
+    ("Good", False): 0.2, 
+    ("OK", True): 0.3, 
+    ("OK", False): 0.7, 
+} 
+P_S_given_G = { 
+    ("Good", True): 0.7, 
+    ("Good", False): 0.3, 
+    ("OK", True): 0.3, 
+    ("OK", False): 0.7, 
+} 
+ 
+def monte_carlo_simulation(num_samples=10000): 
+    count_good_grade = 0 
+    count_startup_given_good = 0 
+ 
+    for _ in range(num_samples): 
+        aptitude = np.random.rand() < P_A[True] 
+        coding = np.random.rand() < P_C[True] 
+        grade_sample = np.random.rand() 
+        if grade_sample < P_G_given_A_C[("Good", aptitude, coding)]: 
+            grade = "Good" 
+        else: 
+            grade = "OK" 
+ 
+        if grade == "Good": 
+            count_good_grade += 1 
+            startup_sample = np.random.rand() 
+            if startup_sample < P_S_given_G[("Good", True)]: 
+                count_startup_given_good += 1 
+ 
+    if count_good_grade == 0: 
+        return 0 
+    return count_startup_given_good / count_good_grade 
+ 
+estimated_probability = monte_carlo_simulation() 
+print(f"Estimated P(Start a Startup=True | Grade=Good): {estimated_probability:.4f}")
